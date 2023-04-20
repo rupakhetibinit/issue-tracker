@@ -1,3 +1,4 @@
+import { clear } from 'console';
 import { type } from 'os';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -23,9 +24,10 @@ const Form = () => {
 	const {
 		register,
 		handleSubmit,
-		formState: { errors },
+		clearErrors,
+		formState: { errors, dirtyFields, isDirty, touchedFields },
 	} = useForm<FormData>();
-	const onSubmit = handleSubmit((data) => console.log(data));
+	const onSubmit = handleSubmit((data) => {});
 
 	return (
 		<>
@@ -34,19 +36,27 @@ const Form = () => {
 				className='flex flex-col justify-center space-y-2'>
 				<label htmlFor='email'>Email</label>
 				<input
+					// onClick={() => clearErrors('email')}
 					className='px-4 py-2 rounded-sm border-blue-500 border '
 					id='email'
 					type='email'
-					{...register('email', { required: true, maxLength: 64 })}
+					{...register('email', {
+						required: 'Email Address is required',
+						maxLength: 64,
+					})}
 				/>
-				<label htmlFor='email'>Password</label>
+				<label htmlFor='password'>Password</label>
 				<input
+					// onClick={() => clearErrors('password')}
 					className='px-4 py-2 rounded-sm border-blue-500 border '
 					id='password'
 					{...register('password', {
-						required: true,
+						required: 'Password is required',
 						maxLength: 64,
-						minLength: 6,
+						minLength: {
+							message: 'Password must be minimum 6 characters',
+							value: 6,
+						},
 					})}
 					type='password'
 				/>
@@ -56,7 +66,6 @@ const Form = () => {
 					Sign Up
 				</button>
 			</form>
-			{errors?.password?.message}
 			{errors.email?.message && (
 				<span className='text-red-500'>{errors.email.message}</span>
 			)}
