@@ -1,9 +1,3 @@
-// import { Input } from '@/components/ui/input';
-// import { auth } from '@/lib/lucia';
-// import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
-// import { useRouter } from 'next/router';
-// import { useForm } from 'react-hook-form';
-
 export const getServerSideProps = async (
 	context: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<{}>> => {
@@ -23,94 +17,7 @@ export const getServerSideProps = async (
 	};
 };
 
-// function Signin() {
-// 	return (
-// 		<main className='flex min-h-screen'>
-// 			<div className='flex w-4/12 justify-center flex-col items-center'>
-// 				<span className='mb-16 text-4xl font-bold'>Login to Issue Tracker</span>
-// 				<Form />
-// 			</div>
-// 			<div className='flex w-8/12 bg-blue-400'></div>
-// 		</main>
-// 	);
-// }
-
-// export default Signin;
-// type FormData = {
-// 	username: string;
-// 	password: string;
-// };
-// const Form = () => {
-// 	const router = useRouter();
-// 	const {
-// 		register,
-// 		handleSubmit,
-// 		clearErrors,
-// 		formState: { errors, dirtyFields, isDirty, touchedFields },
-// 	} = useForm<FormData>();
-// 	const onSubmit = handleSubmit(async (data) => {
-// 		const response = await fetch('/api/signin', {
-// 			method: 'POST',
-// 			body: JSON.stringify({
-// 				username: data.username,
-// 				password: data.password,
-// 			}),
-// 		});
-// 		if (response.redirected) return router.push(response.url);
-// 	});
-
-// 	return (
-// 		<>
-// 			<form
-// 				onSubmit={onSubmit}
-// 				className='flex flex-col justify-center space-y-2'>
-// 				<label htmlFor='email'>Email</label>
-// 				<Input
-// 					// onClick={() => clearErrors('email')}
-// 					// className='px-4 py-2 rounded-sm border-blue-500 border '
-// 					// id='email'
-// 					type='text'
-// 					placeholder='Username'
-// 					{...register('username', {
-// 						required: 'username is required',
-// 						maxLength: 64,
-// 					})}
-// 				/>
-// 				<label htmlFor='password'>Password</label>
-// 				<input
-// 					// onClick={() => clearErrors('password')}
-// 					className='px-4 py-2 rounded-sm border-blue-500 border '
-// 					id='password'
-// 					{...register('password', {
-// 						required: 'Password is required',
-// 						maxLength: 64,
-// 						minLength: {
-// 							message: 'Password must be minimum 6 characters',
-// 							value: 6,
-// 						},
-// 					})}
-// 					type='password'
-// 				/>
-// 				<button
-// 					className='px-4 py-2 bg-blue-400 hover:bg-blue-500 rounded-md text-white'
-// 					type='submit'>
-// 					Sign In
-// 				</button>
-// 			</form>
-// 			{errors.username?.message && (
-// 				<span className='text-red-500'>{errors.username.message}</span>
-// 			)}
-// 			{errors.password?.message && (
-// 				<span className='text-red-500'>{errors.password.message}</span>
-// 			)}
-// 		</>
-// 	);
-// };
-import {
-	GetServerSidePropsContext,
-	GetServerSidePropsResult,
-	Metadata,
-} from 'next';
+import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Command } from 'lucide-react';
@@ -179,28 +86,13 @@ export default function AuthenticationPage() {
 					<div className='mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]'>
 						<div className='flex flex-col space-y-2 text-center'>
 							<h1 className='text-2xl font-semibold tracking-tight'>
-								Create an account
+								Sign in to your account
 							</h1>
 							<p className='text-sm text-muted-foreground'>
-								Enter your email below to create your account
+								Enter your username and password below to sign in
 							</p>
 						</div>
 						<UserAuthForm />
-						{/* <p className='px-8 text-center text-sm text-muted-foreground'>
-							By clicking continue, you agree to our{' '}
-							<Link
-								href='/terms'
-								className='underline underline-offset-4 hover:text-primary'>
-								Terms of Service
-							</Link>{' '}
-							and{' '}
-							<Link
-								href='/privacy'
-								className='underline underline-offset-4 hover:text-primary'>
-								Privacy Policy
-							</Link>
-							.
-						</p> */}
 					</div>
 				</div>
 			</div>

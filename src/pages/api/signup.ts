@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { auth } from '../../lib/lucia';
+import { auth } from '@/lib/lucia';
 
 export default async function handler(
 	req: NextApiRequest,
@@ -7,9 +7,7 @@ export default async function handler(
 ) {
 	if (req.method !== 'POST')
 		return res.status(404).json({ error: 'Not found' });
-	const { username, password, firstName, lastName, email } = JSON.parse(
-		req.body
-	);
+	const { username, password, email } = JSON.parse(req.body);
 	console.log(req.body);
 	if (typeof username !== 'string' || typeof password !== 'string')
 		return res.status(400).json({});
@@ -23,8 +21,6 @@ export default async function handler(
 			},
 			attributes: {
 				username,
-				firstName,
-				lastName,
 				email,
 			},
 		});

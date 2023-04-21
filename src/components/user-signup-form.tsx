@@ -13,6 +13,7 @@ interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 type FormData = {
 	username: string;
 	password: string;
+	email: string;
 };
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
@@ -25,11 +26,12 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 		formState: { errors, dirtyFields, isDirty, touchedFields, isSubmitting },
 	} = useForm<FormData>();
 	const onSubmit = handleSubmit(async (data) => {
-		const response = await fetch('/api/signin', {
+		const response = await fetch('/api/signup', {
 			method: 'POST',
 			body: JSON.stringify({
 				username: data.username,
 				password: data.password,
+				email: data.email,
 			}),
 		});
 		if (response.redirected) return router.push(response.url);
@@ -39,8 +41,8 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 			<form onSubmit={onSubmit}>
 				<div className='grid gap-2'>
 					<div className='grid gap-1'>
-						<Label className='sr-only' htmlFor='username'>
-							Email
+						<Label htmlFor='username' className='text-slate-800'>
+							Username
 						</Label>
 						<Input
 							id='username'
@@ -58,8 +60,25 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 							{errors.username?.message}
 						</div>
 
-						<Label className='sr-only' htmlFor='password'>
+						<Label htmlFor='email' className='text-slate-800'>
 							Email
+						</Label>
+						<Input
+							id='email'
+							placeholder='johndoe@gmail.com'
+							type='email'
+							autoCapitalize='none'
+							autoComplete='email'
+							autoCorrect='off'
+							disabled={isSubmitting}
+							{...register('email', {
+								required: 'email is required',
+							})}
+						/>
+						<div className='text-red-500 text-sm'>{errors.email?.message}</div>
+
+						<Label htmlFor='username' className='text-slate-800'>
+							Password
 						</Label>
 						<Input
 							id='password'
@@ -89,14 +108,10 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 						{isSubmitting && (
 							<Icons.spinner className='mr-2 h-4 w-4 animate-spin' />
 						)}
-						Sign In
+						Sign Up
 					</Button>
 				</div>
 			</form>
 		</div>
 	);
 }
-
-const FormError = (message: string | undefined) => {
-	return <div className='bg-red-500'>{message}</div>;
-};
