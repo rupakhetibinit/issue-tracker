@@ -15,5 +15,7 @@ Features that I want to build in this project
 - [ ] Role based access control(maybe even with fine grained permission control)
 - [ ] CRUD
 - [ ] Notifications(Ping notifications[@username], issues notifications)
+- [ ] Kanban board support
+- [ ] Excalidraw support
 
 This is an idealitic list but hopefully I can create these features in a couple weeks.
