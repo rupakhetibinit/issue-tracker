@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { auth } from '@/lib/lucia';
+import { trpc } from '@/utils/trpc';
 import { User } from 'lucia-auth';
 import {
 	GetServerSidePropsContext,
@@ -22,14 +23,14 @@ export const getServerSideProps = async (
 				permanent: false,
 			},
 		};
-	if (!user.firstName && !user.lastName) {
-		return {
-			redirect: {
-				destination: '/setup',
-				permanent: false,
-			},
-		};
-	}
+	// if (!user.firstName && !user.lastName) {
+	// 	return {
+	// 		redirect: {
+	// 			destination: '/setup',
+	// 			permanent: false,
+	// 		},
+	// 	};
+	// }
 	return {
 		props: {
 			user,
@@ -40,6 +41,8 @@ export const getServerSideProps = async (
 function Dashboard(
 	props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
+	const hello = trpc.hello.useQuery({ text: 'From TRPC' });
+	const proto = trpc.authed.useQuery();
 	const router = useRouter();
 	async function handleLogout() {
 		try {
@@ -73,6 +76,8 @@ function Dashboard(
 						))}
 					</div>
 				</div>
+				<div>{hello.data?.greeting}</div>
+				<div>{proto.data?.greeting}</div>
 				<Button variant='default' onClick={handleLogout}>
 					Logout
 				</Button>
