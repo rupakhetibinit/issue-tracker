@@ -1,3 +1,4 @@
+import { Sidebar, SidebarLinks } from '@/components/sidebar';
 import { Button } from '@/components/ui/button';
 import { auth } from '@/lib/lucia';
 import { trpc } from '@/utils/trpc';
@@ -10,6 +11,21 @@ import {
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import {
+	HomeIcon,
+	ImageIcon,
+	LayoutGrid,
+	LucideIcon,
+	PenTool,
+} from 'lucide-react';
+import {
+	ReactElement,
+	JSXElementConstructor,
+	ReactFragment,
+	ReactPortal,
+	ReactNode,
+	PropsWithChildren,
+} from 'react';
 
 export const getServerSideProps = async (
 	context: GetServerSidePropsContext
@@ -43,49 +59,43 @@ function Dashboard(
 ) {
 	const hello = trpc.hello.useQuery({ text: 'From TRPC' });
 	const proto = trpc.authed.useQuery();
-	const router = useRouter();
-	async function handleLogout() {
-		try {
-			await fetch('/api/logout', {
-				method: 'POST',
-			});
-			router.push('/signin');
-		} catch (error) {
-			console.log(error);
-		}
-	}
+
+	return <></>;
+}
+
+export default Dashboard;
+
+Dashboard.getLayout = function getLayout(page: JSX.Element) {
+	const sidebarLinks: SidebarLinks[] = [
+		{
+			name: 'Home',
+			path: '/dashboard',
+			icon: HomeIcon,
+		},
+		{ name: 'Projects', path: '/dashboard/projects', icon: PenTool },
+		{ name: 'Issues', path: '/dashboard/issues', icon: LayoutGrid },
+		{ name: 'Excalidraw', path: '/dashboard/excalidraw', icon: ImageIcon },
+		// {
+		// 	name: 'Issues',
+		// 	path: '/dashboard/issues',
+		// },
+	];
 	return (
 		<>
 			<Head>
 				<title>Dashboard | Issue Tracker</title>
 			</Head>
-			<main className='flex min-h-screen'>
-				<div className='w-3/12 px-2 py-4'>
-					<div className='text-2xl font-bold tracking-wider font-mono'>
-						Issue Tracker
-					</div>
-					<div>Image</div>
-					<div>{props.user.firstName + ' ' + props.user.lastName}</div>
-					<div>@{props.user.username}</div>
-					<div>Search</div>
-					<div className='flex flex-col'>
-						{linksInPage.map((value) => (
-							<Link key={value} href={value.split(' ').join('').toLowerCase()}>
-								{value}
-							</Link>
-						))}
-					</div>
-				</div>
-				<div>{hello.data?.greeting}</div>
-				<div>{proto.data?.greeting}</div>
-				<Button variant='default' onClick={handleLogout}>
+
+			<main className='flex flex-row w-full h-screen px-4'>
+				<div className='w-2/12 py-4'>
+					<Sidebar links={sidebarLinks} />
+
+					{/* <Button variant='default' onClick={handleLogout}>
 					Logout
-				</Button>
+				</Button> */}
+				</div>
+				{page}
 			</main>
 		</>
 	);
-}
-
-export default Dashboard;
-
-const linksInPage = ['Home', 'Projects', 'Kanban Board'];
+};
