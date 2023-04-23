@@ -18,10 +18,6 @@ Projects.getLayout = function getLayout(page: JSX.Element) {
 		{ name: 'Projects', path: '/dashboard/projects', icon: PenTool },
 		{ name: 'Issues', path: '/dashboard/issues', icon: LayoutGrid },
 		{ name: 'Excalidraw', path: '/dashboard/excalidraw', icon: ImageIcon },
-		// {
-		// 	name: 'Issues',
-		// 	path: '/dashboard/issues',
-		// },
 	];
 	return (
 		<>
