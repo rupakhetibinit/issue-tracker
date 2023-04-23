@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { auth } from '../../lib/lucia';
+import { auth } from '@/lib/lucia';
 
 export default async function handler(
 	req: NextApiRequest,
