@@ -29,9 +29,6 @@ Projects.getLayout = function getLayout(page: JSX.Element) {
 				<div className='w-2/12 py-4'>
 					<Sidebar links={sidebarLinks} />
 
-					{/* <Button variant='default' onClick={handleLogout}>
-					Logout
-				</Button> */}
 					{page}
 				</div>
 			</main>
