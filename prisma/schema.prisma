@@ -59,10 +59,10 @@ model Project {
 }
 
 model Issue {
-  id      String @id @unique @default(cuid())
-  title   String
-  content String
-
+  id           String        @id @unique @default(cuid())
+  title        String
+  content      String
+  priority     Priority
   project      Project       @relation(fields: [projectId], references: [id])
   projectId    String
   assignedBy   UserOnProject @relation("assigned_by", fields: [assignedById], references: [id])
@@ -87,4 +87,12 @@ enum Roles {
   ADMIN
   MODERATOR
   USER
+}
+
+enum Priority {
+  EXTREME
+  HIGH
+  MEDIUM
+  LOW
+  WONTFIX
 }
