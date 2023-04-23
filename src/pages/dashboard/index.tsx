@@ -8,6 +8,7 @@ import {
 } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 export const getServerSideProps = async (
 	context: GetServerSidePropsContext
@@ -21,6 +22,14 @@ export const getServerSideProps = async (
 				permanent: false,
 			},
 		};
+	if (!user.firstName && !user.lastName) {
+		return {
+			redirect: {
+				destination: '/setup',
+				permanent: false,
+			},
+		};
+	}
 	return {
 		props: {
 			user,
@@ -31,6 +40,17 @@ export const getServerSideProps = async (
 function Dashboard(
 	props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
+	const router = useRouter();
+	async function handleLogout() {
+		try {
+			await fetch('/api/logout', {
+				method: 'POST',
+			});
+			router.push('/signin');
+		} catch (error) {
+			console.log(error);
+		}
+	}
 	return (
 		<>
 			<Head>
@@ -64,9 +84,3 @@ function Dashboard(
 export default Dashboard;
 
 const linksInPage = ['Home', 'Projects', 'Kanban Board'];
-
-async function handleLogout() {
-	await fetch('/api/logout', {
-		method: 'POST',
-	});
-}
