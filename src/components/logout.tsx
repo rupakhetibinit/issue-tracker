@@ -10,10 +10,12 @@ function Logout(
 
 	const handleClick = async () => {
 		try {
-			await fetch('/api/logout', {
+			const response = await fetch('/api/logout', {
 				method: 'POST',
 			});
-			router.push('/login');
+			if (response.redirected) {
+				return router.push('/');
+			}
 		} catch (error) {
 			console.log(error);
 		}
