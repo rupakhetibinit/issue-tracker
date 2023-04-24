@@ -10,8 +10,9 @@ import type { CreateNextContextOptions } from '@trpc/server/adapters/next';
 export async function createContext(opts: CreateNextContextOptions) {
 	const authRequest = auth.handleRequest(opts.req, opts.res);
 	const session = await authRequest.validate();
-
+	const contextInner = await createContextInner({ session });
 	return {
+		...contextInner,
 		session,
 	};
 }
