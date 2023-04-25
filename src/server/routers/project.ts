@@ -1,3 +1,4 @@
+import { Roles } from '@prisma/client';
 import { protectedProcedure, router } from '../trpc';
 import { z } from 'zod';
 
@@ -17,10 +18,12 @@ export const projectRouter = router({
 	}),
 	createProject: protectedProcedure
 		.input(
-			z.object({
-				title: z.string(),
-				description: z.string(),
-			})
+			z
+				.object({
+					title: z.string(),
+					description: z.string(),
+				})
+				.required()
 		)
 		.mutation(async ({ input, ctx }) => {
 			try {
@@ -34,6 +37,7 @@ export const projectRouter = router({
 					data: {
 						userId: ctx.session.userId,
 						projectId: project.id,
+						role: Roles.ADMIN,
 					},
 				});
 				return project;
