@@ -20,18 +20,19 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 	const {
 		register,
 		handleSubmit,
-		clearErrors,
 
-		formState: { errors, dirtyFields, isDirty, touchedFields, isSubmitting },
+		formState: { errors, isSubmitting },
 	} = useForm<FormData>();
-	const onSubmit = handleSubmit(async (data) => {
+	const onSubmit = handleSubmit(async ({ username, password }) => {
+		console.log(username, password);
 		const response = await fetch('/api/signin', {
 			method: 'POST',
 			body: JSON.stringify({
-				username: data.username,
-				password: data.password,
+				username,
+				password,
 			}),
 		});
+		console.log(response);
 		if (response.redirected) return router.push(response.url);
 	});
 	return (
@@ -40,7 +41,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 				<div className='grid gap-2'>
 					<div className='grid gap-1'>
 						<Label className='sr-only' htmlFor='username'>
-							Email
+							Username
 						</Label>
 						<Input
 							id='username'
@@ -59,7 +60,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 						</div>
 
 						<Label className='sr-only' htmlFor='password'>
-							Email
+							Password
 						</Label>
 						<Input
 							id='password'
@@ -96,7 +97,3 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 		</div>
 	);
 }
-
-const FormError = (message: string | undefined) => {
-	return <div className='bg-red-500'>{message}</div>;
-};
