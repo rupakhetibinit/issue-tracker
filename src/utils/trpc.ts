@@ -1,6 +1,6 @@
 import { httpBatchLink } from '@trpc/client';
 import { createTRPCNext } from '@trpc/next';
-import type { AppRouter } from '../server/routers/_app';
+import type { AppRouter } from '@/server/routers/_app';
 
 function getBaseUrl() {
 	if (typeof window !== 'undefined')
@@ -29,12 +29,16 @@ export const trpc = createTRPCNext<AppRouter>({
 					 * @link https://trpc.io/docs/ssr
 					 **/
 					url: `${getBaseUrl()}/api/trpc`,
+					fetch(url, options) {
+						return fetch(url, {
+							...options,
+							credentials: 'include',
+						});
+					},
 
 					// You can pass any HTTP headers you wish here
 					async headers() {
-						return {
-							// authorization: getAuthCookie(),
-						};
+						return {};
 					},
 				}),
 			],
