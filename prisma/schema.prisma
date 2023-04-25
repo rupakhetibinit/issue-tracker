@@ -59,28 +59,23 @@ model Project {
 }
 
 model Issue {
-  id           String        @id @unique @default(cuid())
-  title        String
-  content      String
-  priority     Priority
-  project      Project       @relation(fields: [projectId], references: [id])
-  projectId    String
-  assignedBy   UserOnProject @relation("assigned_by", fields: [assignedById], references: [id])
-  assignedTo   UserOnProject @relation("assigned_to", fields: [assignedToId], references: [id])
-  assignedById String
-
-  assignedToId String
+  id            String          @id @unique @default(cuid())
+  title         String
+  content       String
+  priority      Priority
+  project       Project         @relation(fields: [projectId], references: [id])
+  projectId     String
+  assignedUsers UserOnProject[]
 }
 
 model UserOnProject {
-  id         String   @id @unique @default(cuid())
-  user       AuthUser @relation(references: [id], fields: [userId])
-  userId     String
-  Project    Project? @relation(fields: [projectId], references: [id])
-  projectId  String?
-  role       Roles    @default(USER)
-  assingedBy Issue[]  @relation("assigned_by")
-  assignedTo Issue[]  @relation("assigned_to")
+  id        String   @id @unique @default(cuid())
+  user      AuthUser @relation(references: [id], fields: [userId])
+  userId    String
+  Project   Project? @relation(fields: [projectId], references: [id])
+  projectId String?
+  role      Roles    @default(USER)
+  issues    Issue[]
 }
 
 enum Roles {
