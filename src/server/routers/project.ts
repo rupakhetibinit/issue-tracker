@@ -12,6 +12,16 @@ export const projectRouter = router({
 					},
 				},
 			},
+			include: {
+				members: {
+					where: {
+						userId: ctx.user.userId,
+					},
+					select: {
+						role: true,
+					},
+				},
+			},
 		});
 
 		return projects;
@@ -31,18 +41,41 @@ export const projectRouter = router({
 					data: {
 						title: input.title,
 						description: input.description,
-					},
-				});
-				await ctx.prisma.userOnProject.create({
-					data: {
-						userId: ctx.session.userId,
-						projectId: project.id,
-						role: Roles.ADMIN,
+						members: {
+							create: {
+								userId: ctx.session.userId,
+								role: Roles.ADMIN,
+							},
+						},
 					},
 				});
 				return project;
 			} catch (error) {
 				console.log(error);
 			}
+		}),
+	getProjectById: protectedProcedure
+		.input(z.object({ id: z.string() }).required())
+		.query(async ({ ctx, input }) => {
+			return await ctx.prisma.project.findUnique({
+				where: {
+					id: input.id,
+				},
+				select: {
+					_count: {
+						select: {
+							members: true,
+						},
+					},
+					title: true,
+					description: true,
+					members: {
+						select: {
+							user: true,
+							role: true,
+						},
+					},
+				},
+			});
 		}),
 });
