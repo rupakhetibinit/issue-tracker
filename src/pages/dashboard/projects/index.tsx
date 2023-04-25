@@ -83,7 +83,7 @@ function Projects() {
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>Enter Your Project Details</DialogTitle>
-						<DialogDescription>
+						<DialogDescription asChild>
 							<form className='space-y-4' onSubmit={handleSubmit(onSubmit)}>
 								<div className='space-y-1'>
 									<label htmlFor='title'>Title</label>
