@@ -1,4 +1,10 @@
-import { LucideIcon } from 'lucide-react';
+import {
+	HomeIcon,
+	ImageIcon,
+	LayoutGrid,
+	LucideIcon,
+	PenTool,
+} from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
@@ -11,11 +17,18 @@ export type SidebarLinks = {
 	icon: LucideIcon;
 };
 
-interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
-	links: SidebarLinks[];
-}
-
-export function Sidebar({ className, links }: SidebarProps) {
+interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
+const links: SidebarLinks[] = [
+	{
+		name: 'Home',
+		path: '/dashboard',
+		icon: HomeIcon,
+	},
+	{ name: 'Projects', path: '/dashboard/projects', icon: PenTool },
+	{ name: 'Issues', path: '/dashboard/issues', icon: LayoutGrid },
+	{ name: 'Excalidraw', path: '/dashboard/excalidraw', icon: ImageIcon },
+];
+export function Sidebar({ className }: SidebarProps) {
 	const { route } = useRouter();
 
 	return (
