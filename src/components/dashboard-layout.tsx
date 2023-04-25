@@ -4,7 +4,7 @@ import { Separator } from './ui/separator';
 
 export default function DashboardLayout(props: PropsWithChildren) {
 	return (
-		<main className='flex flex-row w-full h-screen px-4'>
+		<main className='flex flex-row w-full h-screen'>
 			<div className='w-2/12'>
 				<Sidebar />
 			</div>
