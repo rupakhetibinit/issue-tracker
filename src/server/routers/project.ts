@@ -8,14 +8,14 @@ export const projectRouter = router({
 			where: {
 				members: {
 					some: {
-						userId: ctx.session.userId,
+						authUserId: ctx.session.userId,
 					},
 				},
 			},
 			include: {
 				members: {
 					where: {
-						userId: ctx.user.userId,
+						authUserId: ctx.user.userId,
 					},
 					select: {
 						role: true,
@@ -41,14 +41,19 @@ export const projectRouter = router({
 					data: {
 						title: input.title,
 						description: input.description,
-						members: {
-							create: {
-								userId: ctx.session.userId,
-								role: Roles.ADMIN,
-							},
-						},
 					},
 				});
+				const member = await ctx.prisma.member.create({
+					data: {
+						projectId: project.id,
+						authUserId: ctx.session.userId,
+						role: Roles.ADMIN,
+					},
+				});
+				if (member) {
+					return project;
+				}
+
 				return project;
 			} catch (error) {
 				console.log(error);
