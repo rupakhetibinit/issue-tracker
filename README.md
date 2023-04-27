@@ -10,7 +10,7 @@ Some of the libraries used in the project are
 This is a project that aims to simplify issue tracking when working with a team. Work in progress
 
 Features that I want to build in this project
-- [ ] Issues management(assigned to, assigned by, due date, issue labels, priority)
+- [ ] Issues management
 - [ ] Projects
 - [ ] Role based access control(maybe even with fine grained permission control)
 - [ ] CRUD
