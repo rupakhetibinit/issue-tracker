@@ -31,7 +31,6 @@ const links: SidebarLinks[] = [
 ];
 export function Sidebar({ className }: SidebarProps) {
 	const route = usePathname();
-	console.log('here', route);
 
 	return (
 		<div className={cn('pb-12 fixed max-w-max', className)}>

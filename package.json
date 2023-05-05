@@ -10,6 +10,7 @@
 		"dev:debug": "cross-env NODE_OPTIONS='--inspect' next dev"
 	},
 	"dependencies": {
+		"@excalidraw/excalidraw": "^0.15.2",
 		"@lucia-auth/adapter-prisma": "^1.0.0",
 		"@prisma/client": "^4.13.0",
 		"@radix-ui/react-dialog": "^1.0.3",
