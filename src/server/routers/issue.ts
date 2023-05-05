@@ -6,10 +6,8 @@ export const issueRouter = router({
 	getAllIssues: protectedProcedure.query(async ({ ctx }) => {
 		const assignedIssues = await ctx.prisma.issue.findMany({
 			where: {
-				assignedUsers: {
-					some: {
-						userId: ctx.session.userId,
-					},
+				assigned: {
+					authUserId: ctx.session.userId,
 				},
 			},
 		});
@@ -37,7 +35,7 @@ export const issueRouter = router({
 					members: {
 						select: {
 							role: true,
-							userId: true,
+							authUserId: true,
 						},
 					},
 				},
@@ -45,8 +43,8 @@ export const issueRouter = router({
 			console.log(isUserAdmin);
 			if (
 				isUserAdmin?.members.filter(
-					({ role, userId }) =>
-						role === Roles.ADMIN && userId === ctx.session.userId
+					({ role, authUserId }) =>
+						role === Roles.ADMIN && authUserId === ctx.session.userId
 				).length !== 0
 			) {
 				return await ctx.prisma.issue.create({
@@ -55,12 +53,8 @@ export const issueRouter = router({
 						priority: input.priority,
 						title: input.title,
 						projectId: input.projectId,
-						assignedUsers: {
-							create: {
-								projectId: input.projectId,
-								userId: ctx.session.userId,
-							},
-						},
+						memberProjectId: input.projectId,
+						memberUserId: ctx.session.userId,
 					},
 				});
 			} else {

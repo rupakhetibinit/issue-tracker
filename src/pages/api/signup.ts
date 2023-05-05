@@ -11,6 +11,7 @@ export default async function handler(
 	console.log(req.body);
 	if (typeof username !== 'string' || typeof password !== 'string')
 		return res.status(400).json({});
+	//@ts-ignore
 	const authRequest = auth.handleRequest(req, res);
 	try {
 		const user = await auth.createUser({

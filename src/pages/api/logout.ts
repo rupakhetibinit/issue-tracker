@@ -12,6 +12,7 @@ export default async function handler(
 ) {
 	if (req.method !== 'POST')
 		return res.status(404).json({ error: 'Not found' });
+	//@ts-ignore
 	const authRequest = auth.handleRequest(req, res);
 	const session = await authRequest.validate();
 	if (!session) return res.status(401).json({ error: 'Unauthorized' });
