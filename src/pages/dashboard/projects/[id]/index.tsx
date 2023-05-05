@@ -11,26 +11,23 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type FormValues = RouterInputs['issue']['createIssue'];
 
 function Project() {
-	// const [id, setId] = useState<string>();
-	// nextjs router.query issue fix
 	const { query } = useRouter();
 	const id = query['id'];
 	const { data: project } = trpc.project.getProjectById.useQuery({
 		id: id as string,
 	});
-	//@ts-ignore
-
-	// if (!router.isReady) return null;
-	// if (router.isReady) refetch();
 
 	return (
 		<div className='mt-6 ml-2 w-full'>
@@ -81,14 +78,14 @@ function CreateIssueDialog() {
 		reset,
 	} = useForm<FormValues>();
 
+	const utils = trpc.useContext();
 	const { mutateAsync: createIssue } = trpc.issue.createIssue.useMutation();
 
 	const onSubmit = async (data: FormValues) => {
-		const utils = trpc.useContext();
 		await createIssue(
 			{ ...data, projectId },
 			{
-				onSuccess: (d) => {
+				onSuccess: () => {
 					setOpen(false);
 					reset();
 					utils.invalidate();
@@ -159,7 +156,7 @@ function CreateIssueDialog() {
 							</div>
 
 							<div>{errors.root?.message}</div>
-							<Button type='submit'>Create Project</Button>
+							<Button type='submit'>Create Issue</Button>
 						</form>
 					</DialogDescription>
 				</DialogHeader>
@@ -194,7 +191,6 @@ function IssueComponent() {
 	const { data: issues } = trpc.issue.getAllIssueByProject.useQuery({
 		projectId: projectId,
 	});
-	console.log(issues);
 	return (
 		<div>
 			<CreateIssueDialog />
@@ -209,20 +205,220 @@ type IssueProps = {
 	issue: RouterOutputs['issue']['getAllIssueByProject'][number];
 };
 
+const issues = [
+	{ type: 'EXTREME', color: 'bg-red-500' },
+	{ type: 'HIGH', color: 'bg-orange-500' },
+	{ type: 'MEDIUM', color: 'bg-yellow-500' },
+	{ type: 'LOW', color: 'bg-green-500' },
+] as const;
 function Issue({ issue }: IssueProps) {
+	const [open, setOpen] = useState(false);
+	const color = useMemo(
+		() => issues.filter((i) => i.type === issue.priority)[0],
+		[issue]
+	);
 	return (
-		<div className='px-4 py-2 bg-gray-500 text-white my-2 rounded-md '>
-			<div className='font-bold text-xl tracking-wider'>{issue.title}</div>
-			<div>Priority : {issue.priority}</div>
-			{/* <div>Content: {issue.content}</div> */}
+		<>
+			<Dialog open={open} onOpenChange={setOpen}>
+				<DialogTrigger asChild>
+					<div className='py-2'>
+						<ScrollArea>
+							<Card className='relative bg-gray-200 hover:bg-gray-300 cursor-pointer'>
+								<div
+									className={cn(
+										'absolute top-0 right-0',
+										color.color,
+										'text-white px-4 py-2 my-2 mx-2 rounded-md'
+									)}>
+									{color.type}
+								</div>
+								<CardHeader>
+									<CardTitle className='font-bold text-xl tracking-wider'>
+										{issue.title}
+									</CardTitle>
+								</CardHeader>
+								<CardContent className='flex justify-between'>
+									<div>{issue.content}</div>
+								</CardContent>
+							</Card>
+						</ScrollArea>
+					</div>
+				</DialogTrigger>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle className=' text-xl font-bold'>
+							{issue.title}
+						</DialogTitle>
+						<DialogDescription>{issue.content}</DialogDescription>
+					</DialogHeader>
+					<div className='space-y-4'>
+						<div
+							className={cn(
+								'absolute top-0 right-8',
+								color.color,
+								'text-white px-4 py-2 my-2 mx-2 rounded-md'
+							)}>
+							{issue.priority}
+						</div>
+					</div>
+				</DialogContent>
+			</Dialog>
+		</>
+	);
+}
+
+type MembersComponentProps = {
+	member: RouterOutputs['project']['getMembersOfProject'][number];
+};
+
+function MembersComponent() {
+	const router = useRouter();
+	const projectId = router.query['id'] as string;
+	const { data: members } = trpc.project.getMembersOfProject.useQuery({
+		projectId: projectId,
+	});
+
+	return (
+		<>
+			<AddMemberDialog />
+			{members?.map((member) => (
+				<Member key={member.authUserId} member={member} />
+			))}
+		</>
+	);
+}
+
+function Member({ member }: MembersComponentProps) {
+	const router = useRouter();
+	const projectId = router.query['id'] as string;
+	const { mutateAsync } = trpc.project.deleteMemberInProject.useMutation();
+	const utils = trpc.useContext();
+	return (
+		<div className='px-4 py-2 text-white my-2 rounded-md bg-gray-500'>
+			<div className='font-bold text-xl tracking-wider'>
+				Username : {member.user.username}
+			</div>
+			<div>Role : {member.role}</div>
+			<button
+				onClick={async () => {
+					await mutateAsync({
+						projectId: projectId,
+						authUserId: member.authUserId,
+					});
+					await utils.project.getMembersOfProject.invalidate();
+				}}>
+				Delete
+			</button>
 		</div>
 	);
 }
 
-function MembersComponent() {
-	return <div>Members component</div>;
-}
-
 function SettingsComponent() {
 	return <div>Settings component</div>;
+}
+
+type IssuePopupDiaglogProps = {
+	issue: RouterOutputs['issue']['getAllIssueByProject'][number];
+};
+
+export type MembersType =
+	RouterOutputs['project']['getAllMembersExceptYourself'];
+
+function AddMemberDialog() {
+	const router = useRouter();
+	const projectId = router.query['id'] as string;
+	const [open, setOpen] = useState(false);
+	const utils = trpc.useContext();
+
+	const { mutateAsync: addMembers } =
+		trpc.project.createMemberInProject.useMutation();
+	const handleSubmit = async () => {
+		// e.preventDefault();
+		// setOpen(false);
+		await addMembers({
+			projectId: projectId,
+			userList: userList,
+		});
+		await utils.project.getMembersOfProject.invalidate();
+
+		setOpen(false);
+	};
+
+	const [userList, setUserList] = useState<MembersType>([]);
+
+	const { data: membersToAdd } =
+		trpc.project.getAllMembersExceptYourself.useQuery(
+			{ projectId: projectId },
+			{
+				onSuccess(data) {
+					console.log(data);
+				},
+			}
+		);
+
+	return (
+		<Dialog open={open} onOpenChange={setOpen}>
+			<DialogTrigger className={buttonVariants({ variant: 'default' })}>
+				Add Member
+			</DialogTrigger>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Add a member to the project</DialogTitle>
+					<DialogDescription asChild>
+						<div className='space-y-4 '>
+							<div className='space-y-1 flex flex-col'>
+								{membersToAdd?.map((member) => (
+									<div
+										key={member.username}
+										className='flex flex-row justify-around'>
+										<div className='text-black text-xl' key={member.username}>
+											{member.username}
+										</div>
+										<button
+											type='button'
+											onClick={() => {
+												const userlist = Array.from(
+													new Set(userList.concat([member]))
+												);
+												setUserList(userlist);
+											}}>
+											Add {member.username} to your project
+										</button>
+									</div>
+								))}
+
+								<div className='text-base font-semibold text-black'>
+									Added Members
+								</div>
+								{userList.map((user) => (
+									<div
+										className='flex px-4 items-center space-x-5'
+										key={user.username}>
+										<div className='text-sm font-semibold text-black'>
+											{user.username}
+										</div>
+										<button
+											className='text-sm font-semibold text-black'
+											onClick={() => {
+												let users = [...userList].filter(
+													(u) => user.username !== u.username
+												);
+
+												setUserList(users);
+											}}>
+											X
+										</button>
+									</div>
+								))}
+							</div>
+
+							<Button type='button' onClick={handleSubmit}>
+								Confirm
+							</Button>
+						</div>
+					</DialogDescription>
+				</DialogHeader>
+			</DialogContent>
+		</Dialog>
+	);
 }

@@ -1,6 +1,7 @@
 export const getServerSideProps = async (
 	context: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<{}>> => {
+	//@ts-ignore
 	const authRequest = auth.handleRequest(context.req, context.res);
 	const session = await authRequest.validate();
 	if (session) {
