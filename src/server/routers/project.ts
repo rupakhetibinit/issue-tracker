@@ -111,6 +111,7 @@ export const projectRouter = router({
 						firstName: z.string().nullable().optional(),
 						lastName: z.string().nullable().optional(),
 						username: z.string(),
+						role:z.nativeEnum(Roles).default("USER")
 					})
 					.required()
 					.array(),
@@ -131,7 +132,7 @@ export const projectRouter = router({
 								id: input.projectId,
 							},
 						},
-						role: Roles.USER,
+						role: user.role,
 					},
 				});
 				addedUsers.push(addedUser);
