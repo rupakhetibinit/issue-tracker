@@ -72,4 +72,25 @@ export const issueRouter = router({
 				},
 			});
 		}),
+	updateIssue: protectedProcedure
+		.input(
+			z
+				.object({
+					issueId: z.string(),
+					issueContent: z.string(),
+					issuePriority: z.nativeEnum(Priority),
+				})
+				.required()
+		)
+		.mutation(async ({ ctx, input }) => {
+			await ctx.prisma.issue.update({
+				where: {
+					id: input.issueId,
+				},
+				data: {
+					content: input.issueContent,
+					priority: input.issuePriority,
+				},
+			});
+		}),
 });

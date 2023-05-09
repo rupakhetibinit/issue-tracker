@@ -19,6 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Priority } from '@prisma/client';
 
 type FormValues = RouterInputs['issue']['createIssue'];
 
@@ -212,11 +213,15 @@ const issues = [
 	{ type: 'LOW', color: 'bg-green-500' },
 ] as const;
 function Issue({ issue }: IssueProps) {
+	const utils = trpc.useContext();
+	const [issueEditable, setIssueEditable] = useState(issue);
 	const [open, setOpen] = useState(false);
+	const [editing, setEditing] = useState(false);
 	const color = useMemo(
 		() => issues.filter((i) => i.type === issue.priority)[0],
 		[issue]
 	);
+	const { mutateAsync: updateIssue } = trpc.issue.updateIssue.useMutation();
 	return (
 		<>
 			<Dialog open={open} onOpenChange={setOpen}>
@@ -249,9 +254,21 @@ function Issue({ issue }: IssueProps) {
 						<DialogTitle className=' text-xl font-bold'>
 							{issue.title}
 						</DialogTitle>
-						<DialogDescription>{issue.content}</DialogDescription>
+						<DialogDescription asChild>
+							<Textarea
+								className='cursor-auto'
+								disabled={!editing}
+								value={issueEditable.content}
+								onChange={(e) =>
+									setIssueEditable((prev) => ({
+										...prev,
+										content: e.target.value,
+									}))
+								}
+							/>
+						</DialogDescription>
 					</DialogHeader>
-					<div className='space-y-4'>
+					<div className='space-y-4 h-32'>
 						<div
 							className={cn(
 								'absolute top-0 right-8',
@@ -259,6 +276,53 @@ function Issue({ issue }: IssueProps) {
 								'text-white px-4 py-2 my-2 mx-2 rounded-md'
 							)}>
 							{issue.priority}
+						</div>
+						<select
+							disabled={!editing}
+							value={issueEditable.priority}
+							onChange={(e) =>
+								setIssueEditable((prev) => ({
+									...prev,
+									priority: e.target.value as Priority,
+								}))
+							}>
+							<option value='EXTREME'>EXTREME</option>
+							<option value='HIGH'>HIGH</option>
+							<option value='MEDIUM'>MEDIUM</option>
+							<option value='LOW'>LOW</option>
+						</select>
+						<div className='absolute bottom-0 right-0 p-4 cursor-pointer'>
+							{!editing ? (
+								<svg
+									onClick={() => setEditing(true)}
+									xmlns='http://www.w3.org/2000/svg'
+									fill='none'
+									viewBox='0 0 24 24'
+									strokeWidth={1.5}
+									stroke='currentColor'
+									className='w-6 h-6'>
+									<path
+										strokeLinecap='round'
+										strokeLinejoin='round'
+										d='M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10'
+									/>
+								</svg>
+							) : (
+								<Button
+									variant='default'
+									onClick={async () => {
+										setEditing(false);
+										await updateIssue({
+											issueContent: issueEditable.content,
+											issuePriority: issueEditable.priority,
+											issueId: issueEditable.id,
+										});
+										setOpen(false);
+										utils.issue.getAllIssueByProject.invalidate();
+									}}>
+									Save
+								</Button>
+							)}
 						</div>
 					</div>
 				</DialogContent>
@@ -321,11 +385,10 @@ type IssuePopupDiaglogProps = {
 	issue: RouterOutputs['issue']['getAllIssueByProject'][number];
 };
 
-export type MembersType = 
+export type MembersType =
 	RouterOutputs['project']['getAllMembersExceptYourself'][number] & {
-		role:"ADMIN"|"MODERATOR"|"USER"
-	}
-
+		role: 'ADMIN' | 'MODERATOR' | 'USER';
+	};
 
 function AddMemberDialog() {
 	const router = useRouter();
@@ -359,14 +422,17 @@ function AddMemberDialog() {
 			}
 		);
 
-		const handleRoleChange=(e:ChangeEvent<HTMLSelectElement>,username:string)=>{
-			const users = [...userList];
-			const user = userList.find(user=>user.username===username);
-			if(!user) return;
+	const handleRoleChange = (
+		e: ChangeEvent<HTMLSelectElement>,
+		username: string
+	) => {
+		const users = [...userList];
+		const user = userList.find((user) => user.username === username);
+		if (!user) return;
 
-			user.role = e.target.value as "USER"|"MODERATOR";
-			setUserList(users)
-		}
+		user.role = e.target.value as 'USER' | 'MODERATOR';
+		setUserList(users);
+	};
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
@@ -390,7 +456,9 @@ function AddMemberDialog() {
 											type='button'
 											onClick={() => {
 												const userlist = Array.from(
-													new Set(userList.concat([{...member,role:"USER"}]))
+													new Set(
+														userList.concat([{ ...member, role: 'USER' }])
+													)
 												);
 												setUserList(userlist);
 											}}>
@@ -409,9 +477,11 @@ function AddMemberDialog() {
 										<div className='text-sm font-semibold text-black'>
 											{user.username}
 										</div>
-										<select value={user.role} onChange={e=>handleRoleChange(e,user.username)}>
-											<option value="MODERATOR">MODERATOR</option>
-											<option value="USER">USER</option>
+										<select
+											value={user.role}
+											onChange={(e) => handleRoleChange(e, user.username)}>
+											<option value='MODERATOR'>MODERATOR</option>
+											<option value='USER'>USER</option>
 										</select>
 										<button
 											className='text-sm font-semibold text-black'
