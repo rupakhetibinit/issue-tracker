@@ -11,7 +11,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog';
-import { useMemo, useState } from 'react';
+import { ChangeEvent, useMemo, useState } from 'react';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
@@ -321,8 +321,11 @@ type IssuePopupDiaglogProps = {
 	issue: RouterOutputs['issue']['getAllIssueByProject'][number];
 };
 
-export type MembersType =
-	RouterOutputs['project']['getAllMembersExceptYourself'];
+export type MembersType = 
+	RouterOutputs['project']['getAllMembersExceptYourself'][number] & {
+		role:"ADMIN"|"MODERATOR"|"USER"
+	}
+
 
 function AddMemberDialog() {
 	const router = useRouter();
@@ -344,7 +347,7 @@ function AddMemberDialog() {
 		setOpen(false);
 	};
 
-	const [userList, setUserList] = useState<MembersType>([]);
+	const [userList, setUserList] = useState<MembersType[]>([]);
 
 	const { data: membersToAdd } =
 		trpc.project.getAllMembersExceptYourself.useQuery(
@@ -355,6 +358,15 @@ function AddMemberDialog() {
 				},
 			}
 		);
+
+		const handleRoleChange=(e:ChangeEvent<HTMLSelectElement>,username:string)=>{
+			const users = [...userList];
+			const user = userList.find(user=>user.username===username);
+			if(!user) return;
+
+			user.role = e.target.value as "USER"|"MODERATOR";
+			setUserList(users)
+		}
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
@@ -378,7 +390,7 @@ function AddMemberDialog() {
 											type='button'
 											onClick={() => {
 												const userlist = Array.from(
-													new Set(userList.concat([member]))
+													new Set(userList.concat([{...member,role:"USER"}]))
 												);
 												setUserList(userlist);
 											}}>
@@ -397,6 +409,10 @@ function AddMemberDialog() {
 										<div className='text-sm font-semibold text-black'>
 											{user.username}
 										</div>
+										<select value={user.role} onChange={e=>handleRoleChange(e,user.username)}>
+											<option value="MODERATOR">MODERATOR</option>
+											<option value="USER">USER</option>
+										</select>
 										<button
 											className='text-sm font-semibold text-black'
 											onClick={() => {
